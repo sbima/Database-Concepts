@@ -1,0 +1,255 @@
+Authors: Shivani Bimavarapu and Bhavani Manthena
+
+PART I.  Proofs and Disproofs
+
+*******************************************************************
+a.{UV -> WR, U -> W} |= {V -> R}
+
+Disproof:
+U  V  W  R
+-  -  -  -
+1  2  3  4
+?  2  ?  ?
+   
+Assuming different values in R to violate the RHS(V->R) and 
+assuming different values in U and same values in W
+
+U  V  W  R
+-  -  -  -
+1  2  3  4
+6  2  3  5
+   
+RHS(V->R) is violated.
+
+LHS: UV -> R.
+we have different values of R for different values of 
+UV (No Violation)
+LHS: U -> W 
+we have different values of W for different values of 
+U (No Violation)
+
+****************************************************************
+b.{U -> V, U -> W, VW -> R} |= { U -> R }
+
+Proof:
+
+1) U  ->  V (given)
+2) U  ->  W (given)
+3) VW ->  R (given)
+4) U  ->  VW(1,2 union)
+5) U  ->  R (4,3 trans)
+
+*****************************************************************
+c. {UV -> WR, S -> TV, T -> R} |= {US -> W}
+
+Proof:
+
+1) UV  ->  WR  (given)
+2) S   ->  TV  (given)
+3) T   ->  R   (given)
+4) US ->TUV (2, aug)
+5) TUV -> TWR (1, aug)
+6) TUV -> W (5, decomp)
+7) US -> W (4,6 trans)
+
+******************************************************************
+
+d.{U -> V, UV -> W} |= {U -> W}
+
+Proof:
+
+1)  U  ->  V (given)
+2) UV  ->  W (given)
+3)  U  -> UV (1,aug)
+4)  U  ->  W (3,2 trans)
+
+********************************************************************
+
+e.{UV -> W, W -> V} |= {W -> U}
+
+Disproof:
+
+U  V  W
+-  -  -
+1  2  3 
+?  ?  3
+
+Assuming different values in U and same values in V to satisfy 
+LHS and RHS
+ 
+U  V  W
+-  -  -
+1  2  3 
+4  2  3 
+
+RHS(W -> U) is violated.
+
+LHS: UV -> W we have different values of W for different 
+values of UV(No Violation)
+LHS: W -> V we have different values of V for different 
+values of W(No Violation)
+
+*********************************************************************
+
+f.{U -> VW, W -> R} |= {U -> VWR}
+
+Proof:
+
+1) U  ->  VW  (given)
+2) W  ->  R   (given)
+3) U -> W (1, decomp)
+4) U -> R (3,2 trans)
+5) U -> VWR (1,4 union)
+
+*********************************************************************
+
+g.{U -> VW, W -> VR} |= {U -> VR}
+
+Proof:
+
+1)  U -> VW (given)
+2)  W -> VR (given)
+3)  U -> W  (1 decomp)
+4)  U -> VR (3,2 trans)
+
+*********************************************************************
+
+h.{U -> V, W -> V} |= {W -> U}
+
+Disproof:
+
+U  V  W
+-  -  -
+1  2  3
+?  ?  3
+  
+Taking same values in W so that LHS of W -> U is true,
+different values in U for W -> U to be false, and same values in V.
+
+U  V  W
+-  -  -
+1  2  3
+4  2  3
+
+RHS(W -> U) is violated.
+
+LHS: U -> V we have different values of V for different 
+values of U (No Violation)
+LHS: W -> V we have same values of V for same 
+values of W (No Violation)
+
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+a)
+R = {H,I,J,K}, 
+F = {HIJ -> K, HIK -> J, HJK -> I}
+Not on RHS : H 
+Not on LHS : None
+Unknown: I,J,K
+To be Included in the key: H
+Considering H to be the key. We can see that it is unable to determine other attributes on its own.
+So H cannot be the key.
+Similarly, HI,HJ,HK cannot be the keys as the do not determine the attributes either.
+Finally, looking at the possible options
+HIJ → K
+HIK → J
+HJK → I
+HIJ, HIK, HJK are the keys for this relation.
+The keys for this relation is HIJ, HIK, HJK
+-----------------------------------------------------------------------
+b)
+R = {H,I,J,K,L} 
+F = {HI -> J, K -> IJ, J -> L} 
+Not on RHS: HK
+Not on LHS: L
+Unknown: I,J
+We start with HK
+
+1) HI  -> J (given)
+2) K  -> IJ (given)
+3) J  -> L  (given)
+4) HK -> HIJ (2,aug)
+5) HK -> J (4,decomp)
+6) HK -> I (4,decomp)
+7) HK -> L (5,3 trans)
+
+HK determines all the attributes. So HK is the key.
+The keys for this relation is HK.
+-----------------------------------------------------------------------
+c)
+R = {H,I,J,K,L} 
+F = {H -> I, I -> J, JK -> L, L -> J }
+Not on RHS : HK
+Not on LHS : None
+Unknown    : I,J,L
+We start with HK
+1) H  ->  I  (given)
+2) I  ->  J  (given)
+3) JK  ->  L  (given)
+4) L  ->  J  (given)
+5) H -> J (1,2, trans)
+6) HK -> JK (5, aug)
+7) HK -> J (6, decomp)
+8) HK -> IK (1, aug)
+9) HK -> I (8, decomp)
+10) HK -> L (6,3, trans)
+
+HK determines all the attributes. So HK is the key.
+The keys for this relation is HK.
+-----------------------------------------------------------------------
+d)
+R = {H,I,J,K}, 
+F = {HI -> JK, J -> H, K -> I}
+
+Not on RHS : None
+Not on LHS : None 
+Unknown    : H,I,J,K
+
+First, We look for key formation starting H,I,J,K
+H,I by itself do not determine any attribute.
+J and K determine the attributes partially.
+
+HI,HJ,HK,IJ,IK,JK
+
+For HI:
+1) HI -> JK (given)
+2) HI -> J (1 decomp)
+3) HI -> K (1 decomp)
+
+For HK:
+1) K -> I (given)
+2) HK -> HI (1 aug)
+3) HK -> I (2 decomp)
+4) HI -> JK (given)
+5) HK -> JK (2,4 trans)
+6) HK -> J (5 decomp)
+
+For HJ:
+1) J -> H (given)
+2) HJ -> H (1, aug)
+
+HJ just determines H and cannot determine any other attributes.
+
+For IJ:
+1) J -> H (given)
+2) HI -> JK  (given)
+3) IJ -> HI (1, aug)
+4) IJ -> H (3, decomp)
+5) IJ -> JK (3,2 trans)
+3) IJ -> K (5, decomp)
+
+For IK:
+1) K  -> I  (given)
+2) IK -> I  (1,aug)
+IK just determines I which in turn doesn't determine any other attributes
+
+For JK:
+1) J -> H (given)
+2) K -> I (given)
+3)JK -> JI (2,aug)
+4)JI -> HI (1,aug)
+5)JK -> HI (3,4 trans)
+6)JK -> I  (3,decomp)
+7)JK -> H  (5,decomp)
+
+The keys for this relation is HI,HK,IJ,JK

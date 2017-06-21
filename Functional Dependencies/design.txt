@@ -1,0 +1,11 @@
+Authors: Shivani Bimavarapu and Bhavani Manthena
+Functional Dependencies
+*********************************************************************
+
+{SECCOURSE,SEMESTER, YEAR, SECNUM} -> {INAME}
+{DNAME} -> {DCODE, DOFFICE}
+{SSSN}  -> {SNAME, SNUM, MAJORDEPTCODE, MINORDEPTCODE}
+{SNUM}  -> {SSSN , SNAME , MAJORDEPTCODE, MINORDEPTCODE}
+{DCODE} -> {DOFFICE, DNAME}
+{CNUM}  -> {CNAME, CREDIT, CCODE}
+{SSSN, SECCOURSE, SEMESTER, YEAR, SECNUM} -> {GRADE}
