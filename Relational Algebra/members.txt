@@ -1,0 +1,2 @@
+Authors: Shivani Bimavarapu and Bhavani Manthena
+Relational Algebra for CS 550 [Fall 2015]

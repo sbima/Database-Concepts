@@ -1,0 +1,157 @@
+SELECT fname,lname,dno as DNUMBER,dname FROM employee,department
+where superssn = (SELECT ssn FROM employee where fname='James' AND lname='Borg') AND dno=dnumber
+ORDER BY lname,fname;
+
+
+
+FNAME	LNAME	DNUMBER	DNAME
+Jennifer	Wallace	4	Administration
+Franklin	Wong	5	Research
+
+
+
+SELECT fname, lname, dname, pname, plocation FROM employee JOIN works_on
+ON ssn=essn
+JOIN project
+ON pno=pnumber
+JOIN department
+ON dno=dnumber
+where 1=(SELECT COUNT(ESSN) FROM works_on,project
+WHERE pno=pnumber AND dno=dnum AND ssn=essn
+GROUP BY ESSN,DNUM) AND dno=dnum
+ORDER BY lname,fname;
+
+
+SELECT COUNT(ESSN),essn,dnum FROM works_on,project
+WHERE pno=pnumber
+GROUP BY ESSN,DNUM;
+SELECT * FROM employee;
+
+FNAME	LNAME	DNAME	PNAME	PLOCATION
+Jennifer	Wallace	Administration	Newbenefits	Bellaire
+James	Borg	Headquarters	Reorganization	Houston
+
+SELECT lname,fname,dname,count(project.pnumber) as NUM_PROJ FROM (SELECT ssn FROM works_on,project,employee
+WHERE pno=pnumber AND dno=dnum AND ssn=essn MINUS
+SELECT ssn FROM works_on,project,employee
+WHERE pno=pnumber AND dno!=dnum AND ssn=essn) A
+JOIN employee
+ON employee.ssn=A.ssn
+JOIN department
+ON dno=dnumber
+JOIN works_on
+ON A.ssn=works_on.essn
+JOIN project
+ON works_on.pno=project.pnumber and employee.dno=project.dnum
+GROUP BY lname,fname,dname
+ORDER BY lname,fname;
+
+
+
+LNAME	FNAME	DNAME	NUM_PROJ
+Borg	James	Headquarters	1
+Jabbar	Ahmad	Administration	2
+Narayan	Ramesh	Research	2
+Smith	John	Research	2
+Zelaya	Alicia	Administration	2
+
+
+
+WITH totalemp as (SELECT count(*) as empcount FROM works_on),
+totalprj as (SELECT count(*) as prjcount FROM project),
+average as (SELECT (empcount/prjcount) AS average FROM totalemp,totalprj)
+SELECT PNAME,PNO as PNUMBER,count as NUM_EMPS,AVERAGE AS EMP_AVG FROM (SELECT count(essn) as count,PNAME,PNO
+FROM works_on,project
+WHERE pno=pnumber
+GROUP BY PNAME,PNO) A, average
+where count>average
+ORDER BY PNO;
+
+
+PNAME	PNUMBER	NUM_EMPS	EMP_AVG
+ProductX	1	4	3
+Newbenefits	30	4	3
+
+
+with pcount as (select DNAME,PLOCATION,count(pnumber) as p_count from department left join project on dnum=department.dnumber GROUP BY DNAME,PLOCATION),
+maxcount as (select DNAME,PLOCATION,MAX(p_count) as m_count from pcount GROUP BY DNAME,PLOCATION)
+select p.dname as DNAME,p.plocation as PLOCATION, p_count as NUM_PROJ from pcount p,maxcount m
+where p.dname=m.dname
+AND p.plocation=m.plocation
+AND p_count = m_count
+ORDER BY DNAME,PLOCATION;
+
+
+DNAME	PLOCATION	NUM_PROJ
+Administration	Bellaire	1
+Administration	Stafford	1
+Headquarters	Houston	1
+Marketing	Chesapeake	1
+Research	Bellaire	1
+Research	Houston	1
+Research	Sugarland	1
+
+
+WITH suprssn as (SELECT A.superssn,B.dno,B.salary FROM employee A,employee B
+where A.superssn = B.ssn)
+SELECT DNAME,AVG(SALARY) as AVG_SAL FROM suprssn,department
+WHERE dno=dnumber
+GROUP BY DNO,DNAME
+ORDER BY DNAME;
+
+
+
+DNAME	AVG_SAL
+Administration	43000
+Headquarters	55000
+Marketing	20000
+Research	38800
+
+
+SELECT distinct pname,pnumber
+FROM works_on,project
+WHERE pno=pnumber
+AND hours>15
+ORDER BY PNAME;
+
+
+
+PNAME	PNUMBER
+Computerization	10
+Newbenefits	30
+ProductX	1
+ProductZ	3
+
+
+select COLUMN_NAME as COLNAME,
+DATA_TYPE as DTYPE,
+DATA_LENGTH as DLENGTH
+FROM ALL_TAB_COLUMNS
+where owner='CS450'
+AND table_name='EMPLOYEE'
+ORDER BY COLNAME;
+
+
+select COLUMN_NAME as COLNAME 
+from ALL_CONS_COLUMNS cols, ALL_CONSTRAINTS con
+where cols.OWNER = 'CS450'
+and cols.TABLE_NAME = 'WORKS_ON'
+and con.CONSTRAINT_TYPE = 'P'
+and cols.CONSTRAINT_NAME = con.CONSTRAINT_NAME
+order by COLNAME;
+
+select TABLE_NAME from ALL_CONSTRAINTS con
+where R_OWNER like 'CS450'
+and EXISTS 
+     ( select CONSTRAINT_NAME from ALL_CONSTRAINTS
+       where OWNER like 'CS450'
+       and   TABLE_NAME like 'EMPLOYEE'
+       and CONSTRAINT_TYPE = 'P' 
+       and CONSTRAINT_NAME = con.R_CONSTRAINT_NAME)
+order by TABLE_NAME;
+
+
+select CONSTRAINT_NAME from ALL_CONSTRAINTS
+   where OWNER like 'CS450'
+   and   TABLE_NAME like 'EMPLOYEE'
+   and CONSTRAINT_TYPE = 'P'

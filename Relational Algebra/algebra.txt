@@ -1,0 +1,231 @@
+//Authors: Shivani Bimavarapu and Bhavani Manthena
+
+//Set 1 
+//Question 1
+
+A1 <-- SELECT[mnum='M2'](CVM) 
+A2 <-- PROJECT[vnum](A1) 
+A3 <-- A2 NJOIN[(vnum),(vnum)] CVM 
+RESULT <-- PROJECT[cnum](A3) 
+
+// parentheses missing for the attributes in NJOIN
+// displays companies num which manufacture the vegetables sold in M2
+
+
+
+//Question 2
+
+B1 <-- [cnum,mnum] FUNC[sum volume](CVM) 
+RESULT <-- SELECT[sum_volume>600](B1) 
+
+// In function operator the attributes and aggregate functions must be space separated (no brackets required)
+// displays company,market pairs nums whose vegetables sum_volume>600
+
+//Question 3
+
+C1 <-- CVM NJOIN[(vnum),(vnum)] V 
+C2 <-- C1 NJOIN[(mnum),(mnum)] M 
+C3 <-- SELECT[c1.location='Paris'](C2) 
+RESULT <-- SELECT[m.location=c1.location](C3) 
+
+// Since results of NJOIN of CVM and V are stored in table C1. we can no longer address it as V.location. 
+// displays rows whose company and market location is paris.
+
+//Question 4
+
+D1 <-- SELECT[cnum='C3'](CVM) 
+D2 <-- PROJECT[vnum](D1) 
+D3 <-- PROJECT[mnum,vnum](CVM) 
+RESULT <-- D3 DIVIDEBY D2 
+
+// The attributes of the divisor must be the last attributes of the dividend.
+// displays market nums which sell all vegetables manufactured by C3.
+
+//Question 5
+E1 <-- SELECT[cnum='C2'](C) 
+E2 <-- PROJECT[rank](E1) 
+E3 <-- C TJOIN[rank>rank] E2
+RESULT <-- PROJECT[cname](E3) 
+
+// The table name must be enclosed within brackets in PROJECT.
+// displays the names of the companies whose rank is higher than C2.
+
+
+
+//Set 2
+
+//Group 1
+
+// Question 1.  List the names of dependents who have the
+// same first name as an employee of whom they are not the dependent.
+// Also show the ssn of the employee with the same first name and the ssn
+// of the employee on whom the dependent is dependent (dependent.essn).
+// (All of this should be shown in the same table.) Display results in
+// order by dependent.essn within dependent name.
+
+A1 <-- EMPLOYEE NJOIN[(fname),(dependent_name)] DEPENDENT
+A2 <-- SELECT[ssn != essn] (A1)
+A3(DEPENDENT_NAME,DEP_EMP_SSN,OTHER_EMP_SSN) <-- PROJECT[fname,essn,ssn] (A2)
+RESULT <-- ORDERBY[DEPENDENT_NAME,DEP_EMP_SSN](A3)
+
+
+
+// Question 2.  For each department, display the average
+// salary of supervisors in the department, showing the department name
+// and the average supervisor salary.  [A supervisor is considered to be
+// in a department if his/her DNO matches that of the department.  He/she
+// does not have to supervise someone in the department.] Display results
+// in order by department name.
+
+R3 <-- PROJECT[superssn](EMPLOYEE)
+R6 <-- EMPLOYEE NJOIN[(ssn),(superssn)]R3
+R7 <-- DEPARTMENT NJOIN[(dnumber),(dno)] R6
+R8 <-- [dname]FUNC[avg salary](R7)
+RESULT(DNAME,AVG_SALARY)<-- ORDERBY[dname](R8)
+
+// Question 3.  Retrieve the first and last names of
+// employees who work on projects which are not controlled by their
+// departments.  Also show the names of the projects, the employee's
+// department number, and the number of the project's controlling
+// department.  (All of this should be shown in the same result table.)
+// Display results in order by last name and then first name and then
+// project name
+      
+A1 <-- WORKS_ON +OJOIN[pno=pnumber] PROJECT
+A2 <-- A1 NJOIN[(essn),(ssn)] EMPLOYEE
+A3<--	SELECT[dnum!=dno] (A2)
+A4(FNAME,LNAME,PNAME,EMP_DNUMBER,PROJ_DNUMBER)<-- PROJECT [fname,lname,pname,dno,dnum](A3)
+RESULT<-- ORDERBY[lname,fname,pname](A4)
+
+// Question 4.  Retrieve the first and last names and
+// department number and name of all employees directly supervised by
+// James Borg.  Display results in order by first name within last name.
+
+A1<-- SELECT[fname='James' and lname='Borg'](EMPLOYEE)
+A3<-- A1 +OJOIN[ssn=superssn]EMPLOYEE
+A4<--A3 +OJOIN[employee.dno=dnumber]DEPARTMENT
+A5(FNAME,LNAME,DNO,DNAME)<-- PROJECT[employee.fname,employee.lname,employee.dno,dname](A4)
+RESULT<-- ORDERBY[lname,fname](A5)
+
+// Question 5.  Retrieve the first and last names of
+// employees whose supervisor works on any project outside the employee's
+// department. Display results in order by first name within last name.
+// [Note that you are to retrieve the employee's name, not the
+// supervisor's.]
+
+A1<-- WORKS_ON +OJOIN[pno=pnumber] PROJECT
+A2<-- EMPLOYEE NJOIN[(superssn),(essn)] A1
+A3 <-- SELECT [dnum!=dno](A2)
+A4<--PROJECT[fname,lname](A3)
+RESULT<-- ORDERBY[lname,fname](A4)
+
+// Question 6.  Retrieve the names and numbers of projects
+// which use at least one employee for more than 15 hours.   Display
+// results in order by project number. 
+
+A1<-- WORKS_ON +OJOIN[pno=pnumber] PROJECT
+A2<-- SELECT [hours>15](A1)
+A3<-- PROJECT[pname,pnumber](A2)
+RESULT<-- ORDERBY[pnumber](A3)
+
+// Question 7.  For each department display the following
+//   a. the department name;
+//   b, the total number of hours assigned to projects controlled by 
+//      the department (no matter which department's employees are 
+//      working on the project);
+//   c. the total number of hours assigned to employees of the  
+//      department (no matter which department's project they are 
+//      working on). 
+// Display results in order by department name.
+
+R1<-- [pno]FUNC[sum hours](WORKS_ON)
+R2<-- R1 NJOIN[(pno),(pnumber)]PROJECT
+R5 <-- [dnum]FUNC[sum sum_hours](R2)
+R3<-- [essn]FUNC[sum hours](WORKS_ON)
+R4<-- R3 NJOIN[(essn),(ssn)]EMPLOYEE
+R6 <-- [dno]FUNC[sum sum_hours](R4)
+R7 <-- DEPARTMENT NJOIN[(dnumber),(dno)]R6
+R8 <-- R7 NJOIN[(dnumber),(dnum)]R5
+R9(dname,proj_hours,emp_hours) <-- PROJECT[dname,r5.sum_sum_hours,r7.sum_sum_hours](R8)
+RESULT<-- ORDERBY[dname](R9)
+
+//Focusing on b to get the hours of total assigned projects by the
+// department R1 collects the total hours per project and is 
+// joined to project table get further details. R5 gets it 
+// sumed up for each department. Similarly we calculated total hours
+// per employee and joined with employee table. R7 gets it
+// consolidated for each department. In R7 and R8, R6 and R5 are
+// Njoined to combine a,b and c. Now in R9 we project and rename
+// the required fields. 
+
+
+
+// Question 8.  Do any departments have a location in which
+// they have no projects? Retrieve the names of departments which have
+// at least one location which is not the same as any of the locations
+// of the department's projects.  [This means that one department
+// location is different from every location of every project of that
+// department.] Display results in order by department name.
+
+R1<-- PROJECT[dnum,plocation](PROJECT)
+R2 <-- DEPT_LOCATIONS MINUS R1
+R3 <-- R2 TJOIN[dnumber=dnumber]DEPARTMENT
+R4 <-- PROJECT[dname](R3)
+RESULT(dname)<-- ORDERBY[dname](R4)
+
+// Question 9.  Retrieve the first and last names of
+// employees who work on more than the average number of projects.  Also
+// display the number of projects they worked on as well as the average
+// number of projects.(Note: employees who do not work on any project
+// are to be included in the average.)   [Example: Joe works on 3
+// projects; Sam, on 2; Harry, on 0; David, on 0.  The average is 5/4 =
+// 1.25.  Both Joe and Sam work on more than the average.] Display
+// results in order by first name within last name.
+
+R1<-- [essn]FUNC[count pno](WORKS_ON)
+R2<-- PROJECT[fname,lname,ssn](EMPLOYEE)
+R3<-- R2 +OJOIN[ssn=essn]R1
+R4<-- FUNC[count ssn,sum count_pno](R3)
+R5 <-- R3 XPROD R4
+R6(count) <-- PROJECT[sum_count_pno / count_ssn](R5)
+R7<-- R3 XPROD R6
+R8<-- SELECT[count_pno>count](R7)
+R9(FNAME,LNAME,NUMPROJ,AVERAGE)<-- PROJECT[fname,lname,count_pno,count](R8)
+RESULT<-- ORDERBY[lname,fname](R9)
+
+// The given question asks to average the projects for which we
+// count the pno per essn to get R1. To avoid confusion for further
+// operations we project required fields. In R3 we make a left
+// outer join to combine R1 and R2. In R4 we count the total number
+// of ssn and sum the R1 results. To counter the null values we make
+// a Cartesian product and make an extended projection with
+// arithmetic operation. With one more Cartesian with R3 we will
+// be select the tuples above average in R8. Finally we project
+// the required columns and order by fname with in lname.
+
+// Question 10.  Which project uses the most employees?
+// Display its name and project number.  Also show the total number of
+// employees for that project.  If there is more than one project that
+// has attained that maximum, list them all.    Display results in order
+// by project name.
+
+R1<-- [pno]FUNC[count essn](WORKS_ON)
+R2 <-- R1 NJOIN[(pno),(pnumber)]PROJECT
+R3 <-- FUNC[max count_essn](R2)
+R4 <-- R2 XPROD R3
+R5 <-- SELECT[count_essn=max_count_essn](R4)
+R6(PNAME,PNUMBER,TOTAL) <-- PROJECT[pname,pno,count_essn](R5)
+RESULT<-- ORDERBY[pname](R6)
+
+// The focus here is to find the the employees with maximum number of
+// projects. Before we calculate the max we count the number of
+// employees working on a single project and join with project 
+// table for more details at R2. At R3 we calculate the max of R1.
+// In order to be able to compare we make a cartesian product and 
+// select the tuples which are also equal to max value. Further we
+// project the required values and order by pname.
+
+// All the work submitted in this file is our own work.  
+// We have not received or copied answers from anyone else.  
+// In addition, we have not given answers to anyone else 
+// or allowed anyone to copy them.

@@ -1,0 +1,12 @@
+qes 8
+CXV <-- C XPROD V // cartesian product 
+CXVXM <-- CXV XPROD M
+TEST <-- SELECT[c.location=v.location or c.location=location or location=v.location](CXVXM)
+RESULT <-- CXVXM MINUS TEST
+
+R2 <-- PROJECT[mnum](R1)
+Group by and Sum: RESULT <-- [vnum,mnum]FUNC[sum volume] (CVM)
+//above query does project and apply function
+RESULT1 <-- [vnum,mnum]FUNC[sum volume,count mnum] (CVM)
+RESULT <-- [vnum,mnum]FUNC[avg volume] (CVM)
+RES <-- SELECT[sum_volume > 300](RESULT) // select with condition

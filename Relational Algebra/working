@@ -1,0 +1,186 @@
+Q1
+
+R1 <-- DEPENDENT TJOIN[dependent_name=fname]EMPLOYEE
+R2 <-- SELECT[essn<>ssn](R1)
+RESULT <-- PROJECT[dependent_name,essn,ssn](R2)
+
+Q2
+R1 <-- EMPLOYEE NJOIN[(dno),(dnumber)]DEPARTMENT
+R2 <-- PROJECT[SSN,dno](EMPLOYEE)
+R3 <-- PROJECT[SUPERSSN,dno](EMPLOYEE)
+R4 <-- R2 MINUS R3
+R5 <-- R4 NJOIN[(SSN),(ssn)]EMPLOYEE
+R6 <-- R5 NJOIN[(dno),(dnumber)] DEPARTMENT
+R7 <-- [dname]FUNC[avg salary](R6)
+
+
+R1 <-- EMPLOYEE NJOIN[(dno),(dnumber)]DEPARTMENT
+R2 <-- PROJECT[SSN,DNO](EMPLOYEE)
+R3 <-- PROJECT[SUPERSSN,DNO](EMPLOYEE)
+R4 <-- R2 MINUS R3
+R5 <-- R4 NJOIN[(R4.SSN),(ssn)]EMPLOYEE
+
+corrected
+
+R2 <-- PROJECT[SSN,DNO](EMPLOYEE)
+R3 <-- PROJECT[SUPERSSN,DNO](EMPLOYEE)
+R4 <-- R2 MINUS R3
+R5 <-- PROJECT[ssn,dno](R4)
+R6 <-- R5 NJOIN[(ssn),(ssn)]EMPLOYEE
+R7 <-- R6 NJOIN[(employee.dno),(dnumber)] DEPARTMENT
+R8 <-- [dname]FUNC[avg salary](R7)
+
+R3 <-- PROJECT[superssn](EMPLOYEE)
+R6 <-- EMPLOYEE NJOIN[(ssn),(superssn)]R3
+R7 <-- DEPARTMENT NJOIN[(dnumber),(dno)] R6
+R8 <-- [dname]FUNC[avg salary](R7)
+
+DNAME	AVG_SALARY
+Administration	25000
+Research	34000
+Headquarters	55000
+
+Final
+
+R1<-- PROJECT[superssn](EMPLOYEE)
+R2<-- R1 NJOIN[(superssn),(ssn)]EMPLOYEE
+R3 <-- R2 NJOIN[(dno),(dnumber)]DEPARTMENT
+R4<-- [dname]FUNC[avg salary](R3)
+
+
+
+
+DNAME	AVG_SALARY
+Administration	43000
+Research	33500
+Headquarters	55000
+
+
+Q3
+
+R1 <-- WORKS_ON NJOIN[(pno),(pnumber)]PROJECT
+R2 <-- PROJECT[pname,essn,dnum](R1)
+R3 <-- PROJECT[fname,lname,ssn,dno](EMPLOYEE)
+R4 <-- PROJECT[essn,dnum](R1)
+R5 <-- PROJECT[ssn,dno](EMPLOYEE)
+R6 <-- R4 MINUS R5
+R7 <-- R6 TJOIN[essn=essn and dnum=dnum]R2
+R8 <-- R7 NJOIN[(r6.essn),(ssn)]R3
+R9 <-- PROJECT[fname,lname,pname,dno,r6.dnum](R8)
+
+FNAME	LNAME	PNAME	DNO	DNUM
+Franklin	Wong	Computerization	5	4
+Franklin	Wong	Reorganization	5	1
+Franklin	Wong	Newbenefits	5	4
+Jennifer	Wallace	Reorganization	4	1
+
+
+Q4
+
+R1 <-- SELECT[fname='James' and lname='Borg'](EMPLOYEE)
+R2 <-- PROJECT[ssn](R1)
+R3 <-- PROJECT[fname,lname,dno,ssn,superssn](EMPLOYEE)
+R4 <-- R2 NJOIN[(ssn),(superssn)]R3
+R5 <-- R4 NJOIN[(dno),(dnumber)]DEPARTMENT
+R6 <-- PROJECT[fname,lname,dno,dname](R5)
+
+
+
+Q5
+
+R1<-- PROJECT[superssn](EMPLOYEE)
+R2<-- R1 NJOIN[(superssn),(ssn)]EMPLOYEE
+R3 <-- WORKS_ON NJOIN[(pno),(pnumber)]PROJECT
+R4 <-- R2 TJOIN[r1.superssn=essn and dno<>dnum]R3
+R5 <-- R2 TJOIN[r1.superssn=superssn]EMPLOYEE
+R6 <-- PROJECT[employee.fname,employee.lname](R5)
+
+
+FNAME	LNAME
+Ahmad	Jabbar
+Franklin	Wong
+Alicia	Zelaya
+Ramesh	Narayan
+Wilber	Mills
+James	Kennedy
+Joyce	English
+Jennifer	Wallace
+John	Smith
+Theodore	Nixon
+
+Q6
+
+R1<-- [pno]FUNC[sum hours](WORKS_ON)
+R2<-- SELECT[sum_hours>15](R1)
+R3<-- R2 NJOIN[(pno),(pnumber)]PROJECT
+R4<-- PROJECT[pname,pno](R3)
+
+
+PNAME	PNO
+ProductX	1
+ProductZ	3
+Computerization	10
+
+Q7
+
+R1<-- [pno]FUNC[sum hours](WORKS_ON)
+R2<-- R1 NJOIN[(pno),(pnumber)]PROJECT
+R5 <-- [dnum]FUNC[sum sum_hours](R2)
+R3<-- [essn]FUNC[sum hours](WORKS_ON)
+R4<-- R3 NJOIN[(essn),(ssn)]EMPLOYEE
+R6 <-- [dno]FUNC[sum sum_hours](R4)
+R7 <-- DEPARTMENT NJOIN[(dnumber),(dno)]R6
+R8 <-- R7 NJOIN[(dnumber),(dnum)]R5
+R9 <-- PROJECT[dname,r7.sum_sum_hours,r5.sum_sum_hours](R8)
+
+
+DNAME	R7.SUM_SUM_HOURS	R5.SUM_SUM_HOURS
+Headquarters	 	25
+Research	180	155
+Administration	115	115
+
+Q8
+
+R1<-- PROJECT[dnum,plocation](PROJECT)
+R2 <-- DEPT_LOCATIONS MINUS R1
+R3 <-- R2 TJOIN[dnumber=dnumber]DEPARTMENT
+R4 <-- PROJECT[dname](R3)
+
+
+DNAME
+Research
+
+Q9
+R1<-- [essn]FUNC[count pno](WORKS_ON)
+R2<-- PROJECT[fname,lname,ssn](EMPLOYEE)
+R3<-- R2 +OJOIN[ssn=essn]R1
+R4<-- FUNC[avg count_pno](R3)
+R5<-- R3 XPROD R4
+R6<-- SELECT[count_pno>avg_count_pno](R5)
+R7<-- PROJECT[fname,lname,count_pno,avg_count_pno](R6)
+
+R1<-- [essn]FUNC[count pno](WORKS_ON)
+R2<-- PROJECT[fname,lname,ssn](EMPLOYEE)
+R3<-- R2 +OJOIN[ssn=essn]R1
+R4<-- SELECT[essn is null](R3)
+
+correct
+R1<-- [essn]FUNC[count pno](WORKS_ON)
+R2<-- PROJECT[fname,lname,ssn](EMPLOYEE)
+R3<-- R2 +OJOIN[ssn=essn]R1
+R4<-- FUNC[count ssn,sum count_pno](R3)
+R5 <-- R3 XPROD R4
+R6(count) <-- PROJECT[sum_count_pno / count_ssn](R5)
+R7<-- R3 XPROD R6
+R8<-- SELECT[count_pno>count](R7)
+R9<-- PROJECT[fname,lname,count_pno,count](R8)
+
+
+Q10
+R1<-- [pno]FUNC[count essn](WORKS_ON)
+R2 <-- R1 NJOIN[(pno),(pnumber)]PROJECT
+R3 <-- FUNC[max count_essn](R2)
+R4 <-- R2 XPROD R3
+R5 <-- SELECT[count_essn=max_count_essn](R4)
+R6 <-- PROJECT[pname,pno,count_essn](R5)
+

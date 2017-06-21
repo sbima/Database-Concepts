@@ -1,0 +1,2 @@
+Authors: Shivani Bimavarapu and Bhavani Manthena
+SQL Assignment for CS 450/550, [Fall 2015]
