@@ -1,0 +1,138 @@
+ER Diagram
+-----------------------------------------------------------------------
+-----------------------------------------------------------------------
+Competition Entity:
+A competition has attributes Unique name,Location,Date. Competition 
+name is Considered as Primary Key.
+-----------------------------------------------------------------------
+Events Entity:
+A Event entity mantains relationship with Competition through
+Competition name as foreign key.Competitors participate in events.
+Event entity is considered as weak entity by considering dependency
+on Competition Entity.Event name is considered as partial key
+-----------------------------------------------------------------------
+Competitors Entity:
+
+The competitors are boys between the ages of 8 and 18. Each competitor
+ has an International Gymnastics Association number, a first and last 
+ name, address, age category, birth date, and team is an optional 
+ attribute. Comp_IGA (International Gymnastics Association number) 
+ is the primary key.
+-----------------------------------------------------------------------
+Team Entity:
+
+Each team has attributes like unique name, location, a head coach 
+and (possibly)several assistant coaches. Team_name is the primary key. 
+-----------------------------------------------------------------------
+Coach_Judges Entity:
+
+Each coach has an International Gymnastics Association number, first 
+and last name. IGA (International Gymnastics Association number) is the
+ primary key. There can be any IGA_Certified_Event associated to one
+ judge.
+
+-----------------------------------------------------------------------
+Relationship Explanation
+-----------------------------------------------------------------------
+
+Relationship Name: Has
+Relationship Connects: Competition and Events Entity
+Cardinality: M:N
+Explanation:Each event may be present in different competition
+and at the same time each competition may have many events.
+Hence the cardinality between Competition and Events Entity
+is M:N.
+
+-----------------------------------------------------------------------
+Relationship Name: Partcipations
+Relationship Connects: Competitors and Events and Coach_Judges Entity
+Cardinality: M:N between Competitors and Events.
+Cardinality: M:O  between Competitors and Coach_Judges.
+Cardinality: O:N between Coach_Judges and Events.
+Explanation: Competitors can participate in many events and each
+event can have many participates and so M:N cardinality between 
+Competitors and Events. Judges award points to different competitors
+and each competitor is graded by 2 judges.comeptitors 
+are graded by different judges based on events. Hence M:O relationship
+between Competitors and Coach_Judges.Each event has 2 judges and each
+judge may grade many events.Hence O:N relation between Coach_Judges
+and Events
+
+-----------------------------------------------------------------------
+Relationship Name: From
+Relationship Connects: Competition and Events
+Cardinality: M:1
+Explanation:Competitors belongs to one team and each team have many
+competitors hence M:1 relationship between Competition and Events
+-----------------------------------------------------------------------
+Relationship Name: Coaches
+Relationship Connects: Team and Coach_Judges
+Cardinality: 1:1
+Explanation: Each team have one coach and each coach coaches one team.
+Hence the cardinality between Team and Coach_Judges is 1:1.There can be
+even many assistant coaches.
+
+-----------------------------------------------------------------------
+
+Algorithm to find derived attributes to report
+
+-----------------------------------------------------------------------
+1.the point-values of all attempts
+
+The partcipation relationship has all the attributes like competitior
+IGA, awarded points based on each attempt,and even the event name.
+1.Do the average function on partcipent awarded points and group by
+event name,attempt number.
+
+2. all scores by all competitors
+
+Find the score of each competitor by selecting the maximum score among 
+two attempts. Group by Competition name and Event number and Comp_IGA 
+
+
+3. all points given by all judges.
+1. Find the scores given by judges to competitors. 
+2. Select scores given by judges group by judge_id, competition name,
+event number and Comp_IGA.  
+
+4. The first six places in each event and the all-around for each 
+age group
+1.Count scores of competitors group by competition name, event number, 
+comp_iga and from each event select 6 competitors order by comp_iga 
+in descending order.
+2. count scores of competitors group by competition name and comp_iga 
+and age group and from this result select top 6 competitors.
+
+5. The first six places in the team scores for each age group
+1. Select all rounder from each team by using group by on competition 
+name, event number, team id and agegroup, comp_iga. 
+2. Then from each team select 4 competitors with highest score by 
+using group by on  competition name, event number, team id, agegroup, 
+comp_iga and these comp_iga should not be equal to all rounder comp_id.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
